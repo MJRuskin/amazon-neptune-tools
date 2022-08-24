@@ -16,9 +16,10 @@ from neptune_python_utils.batch_utils import BatchUtils
 
 class GlueGremlinClient:
     
-    def __init__(self, endpoints, job_name=None, **kwargs): 
+    def __init__(self, endpoints, job_name=None, to_dict=lambda x: x.asDict(), **kwargs):
         self.endpoints = endpoints
         self.job_name = job_name
+        self.to_dict = to_dict
         self.kwargs = kwargs
         
     def __execute_batch(self, f, pool_size=1):
@@ -29,7 +30,7 @@ class GlueGremlinClient:
         def execute_batch(rows):
             batch_utils = None
             try:
-                batch_utils = BatchUtils(self.endpoints, job_name=self.job_name, to_dict=lambda x: x.asDict(), pool_size=pool_size, **self.kwargs)
+                batch_utils = BatchUtils(self.endpoints, job_name=self.job_name, to_dict=self.to_dict, pool_size=pool_size, **self.kwargs)
                 return f(batch_utils, rows)
             finally:
                 if batch_utils:
